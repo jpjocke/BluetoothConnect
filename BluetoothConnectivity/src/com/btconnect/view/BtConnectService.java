@@ -212,6 +212,7 @@ public class BtConnectService implements NetworkInterface{
 		private final BluetoothSocket mSocket;
         private final InputStream mInStream;
         private final OutputStream mOutStream;
+        private final byte[] END = {'Q'};
 
         public CommunicationThread(BluetoothSocket socket) {
             Log.d(TAG, "create ConnectedThread");
@@ -244,10 +245,20 @@ public class BtConnectService implements NetworkInterface{
             // Keep listening to the InputStream while connected
             while (true) {
                 try {
+                    StringBuilder sb = new StringBuilder();
+                	char c = (char)mInStream.read();
+                	while(c != END[0]){
+                		sb.append(c);
+                    	c = (char)mInStream.read();
+                	}
+
+                    Message msg = mHandler.obtainMessage(SVar.BT_READ, -1, -1, sb.toString());
+                    mHandler.sendMessage(msg);
+                	/*
                     bytes = mInStream.read(buffer);
                     Log.i(TAG, new String(buffer, 0, bytes));
                     Message msg = mHandler.obtainMessage(SVar.BT_READ, bytes, -1, buffer);
-                    mHandler.sendMessage(msg);
+                    mHandler.sendMessage(msg);*/
                 } catch (IOException e) {
                     Log.e(TAG, "disconnected", e);
                     connectionLost();
@@ -265,7 +276,7 @@ public class BtConnectService implements NetworkInterface{
         public void write(byte[] buffer) {
             try {
                 mOutStream.write(buffer);
-
+                mOutStream.write(END);
                 // Share the sent message back to the UI Activity
                /* mHandler.obtainMessage(BluetoothChat.MESSAGE_WRITE, -1, -1, buffer)
                         .sendToTarget();*/

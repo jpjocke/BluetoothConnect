@@ -8,8 +8,8 @@ public class OneFingerDataFactory {
 	private ArrayList<OneFingerData> ofdList;
 	private PointFactory pf;
 	
-	public OneFingerDataFactory(PointFactory pf){
-		this.pf = pf;
+	public OneFingerDataFactory(){
+		pf = new PointFactory();
 		ofdList = new ArrayList<OneFingerData>();
 	}
 	

@@ -49,10 +49,15 @@ public class OneFingerData {
 		createTime = jo.getLong("createTime");
 		JSONObject points = jo.getJSONObject("points"); 
         Iterator<?> keys = points.keys(); 
-        while(keys.hasNext()){ 
-            String key = (String)keys.next(); 
-            addPoint(points.getJSONObject(key).getInt("x"), points.getJSONObject(key).getInt("y"));
-        } 
+        int i = 0;
+        while(true){
+        	if(points.has(String.valueOf(i))){
+        		addPoint(points.getJSONObject(String.valueOf(i)).getInt("x"), points.getJSONObject(String.valueOf(i)).getInt("y"));
+        		i++;
+        	}
+        	else
+        		break;
+        }
 	}
 
 	public int getmId() {

@@ -18,9 +18,10 @@ public class DrawPnl extends SurfaceView implements SurfaceHolder.Callback{
 	private static final String TAG = "Multi";
 	private DrawThread drawThread;
 
-	private OneFingerDataFactory ofdFactory;
+	//private OneFingerDataFactory ofdFactory;
 	private OneFingerData[] cDrawing;
-	private ArrayList<OneFingerData> drawList;
+	private DrawList drawList;
+	//private ArrayList<OneFingerData> drawList;
 
 	private static final int MAX_POINTERS = 10;
 	private int cPointers = 0;
@@ -42,9 +43,10 @@ public class DrawPnl extends SurfaceView implements SurfaceHolder.Callback{
 			color[i].setColor(Color.rgb(r, g, b));
 		}
 
-		PointFactory pf = new PointFactory();
-		ofdFactory = new OneFingerDataFactory(pf);
-		drawList = new ArrayList<OneFingerData>();
+		//PointFactory pf = new PointFactory();
+		//ofdFactory = new OneFingerDataFactory(pf);
+		//drawList = new DrawList(ofdFactory);
+		//drawList = new ArrayList<OneFingerData>();
 		cDrawing = new OneFingerData[MAX_POINTERS];
 		drawThread = new DrawThread(getHolder());
 		drawThread.setRunning(true); 
@@ -91,6 +93,10 @@ public class DrawPnl extends SurfaceView implements SurfaceHolder.Callback{
 	public void setNetworkInterface(NetworkInterface network){
 		this.network = network;
 	}
+	
+	public void setDrawList(DrawList drawList){
+		this.drawList = drawList;
+	}
 
 	private void emptyCurrentList(MotionEvent e){
 		for(int i = 0; i < cDrawing.length; i++){
@@ -98,7 +104,7 @@ public class DrawPnl extends SurfaceView implements SurfaceHolder.Callback{
 				//Log.d(TAG, "added with id: " + cDrawing[i].getmId() + " to drawList");
 				//Log.i(TAG, cDrawing[i].toJSON());
 				network.write(cDrawing[i].toJSON());
-				drawList.add(cDrawing[i]);
+				//drawList.add(cDrawing[i]);
 				cDrawing[i] = null;
 			}
 		}
@@ -106,7 +112,7 @@ public class DrawPnl extends SurfaceView implements SurfaceHolder.Callback{
 		if(cPointers > MAX_POINTERS)
 			cPointers = MAX_POINTERS;
 		for(int i = 0; i < cPointers; i++){
-			cDrawing[e.getPointerId(i)] = ofdFactory.takeOneFingerData(e.getPointerId(i));
+			cDrawing[e.getPointerId(i)] = drawList.getOneFingerDataFactory().takeOneFingerData(e.getPointerId(i));
 			cDrawing[e.getPointerId(i)].setColor(cPointers);
 		}
 	}
@@ -115,23 +121,23 @@ public class DrawPnl extends SurfaceView implements SurfaceHolder.Callback{
 	public void doDraw(Canvas canvas) { 
 		canvas.drawColor(Color.WHITE);
 		try{
-			for(int i = drawList.size() - 1; i >= 0; i--){
-				if(drawList.get(i).getCreateTime() + DRAW_TIME < System.currentTimeMillis()){
+			for(int i = drawList.getDrawList().size() - 1; i >= 0; i--){
+				if(drawList.getDrawList().get(i).getCreateTime() + DRAW_TIME < System.currentTimeMillis()){
 					//Log.d(TAG, "removed with id:" + drawList.get(i).getmId() + " from drawList");
-					ofdFactory.returnOneFingerData(drawList.get(i));
-					drawList.remove(i);
+					drawList.getOneFingerDataFactory().returnOneFingerData(drawList.getDrawList().get(i));
+					drawList.getDrawList().remove(i);
 				}
 			}
-			for(int i = 0; i < drawList.size(); i++){
-				float a1 = (float)(System.currentTimeMillis() - drawList.get(i).getCreateTime() + DRAW_TIME);
+			for(int i = 0; i < drawList.getDrawList().size(); i++){
+				float a1 = (float)(System.currentTimeMillis() - drawList.getDrawList().get(i).getCreateTime() + DRAW_TIME);
 				a1 = a1 / (float)DRAW_TIME;
 				a1 *= 255;
 				a1 = 255 - a1;
-				for(int j = 0; j < drawList.get(i).getPointData().size() - 1; j++){
-					PointFloat start = drawList.get(i).getPointData().get(j);
-					PointFloat end = drawList.get(i).getPointData().get(j + 1);
-					color[drawList.get(i).getColor()].setAlpha((int)a1);
-					canvas.drawLine(start.x, start.y, end.x, end.y, color[drawList.get(i).getColor()]);
+				for(int j = 0; j < drawList.getDrawList().get(i).getPointData().size() - 1; j++){
+					PointFloat start = drawList.getDrawList().get(i).getPointData().get(j);
+					PointFloat end = drawList.getDrawList().get(i).getPointData().get(j + 1);
+					color[drawList.getDrawList().get(i).getColor()].setAlpha((int)a1);
+					canvas.drawLine(start.x, start.y, end.x, end.y, color[drawList.getDrawList().get(i).getColor()]);
 				}
 			}
 		}

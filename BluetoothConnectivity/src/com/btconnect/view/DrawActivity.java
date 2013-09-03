@@ -1,6 +1,10 @@
 package com.btconnect.view;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.btconnect.R;
+import com.btconnect.model.DrawList;
 import com.btconnect.variables.SVar;
 
 import android.app.Activity;
@@ -22,7 +26,8 @@ public class DrawActivity extends Activity{
 	private BluetoothAdapter mBluetoothAdapter;
 	private BtConnectService mBtConnect;
 	private TextView status;
-	private DrawPnl drawPnl;
+	private DrawList drawList;
+	//private DrawPnl drawPnl;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +53,9 @@ public class DrawActivity extends Activity{
 			Log.d(TAG, extras.getString(SVar.MAC));
 			connectDevice(extras.getString(SVar.MAC));
 		}
+		drawList = new DrawList();
 		((DrawPnl)findViewById(R.id.drawDrawPnl)).setNetworkInterface(mBtConnect);
+		((DrawPnl)findViewById(R.id.drawDrawPnl)).setDrawList(drawList);
 		//drawPnl = new DrawPnl(this); 
 		//findViewById(R.id.drawFrame).addContentView(drawPnl, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)); 
 	}
@@ -76,9 +83,21 @@ public class DrawActivity extends Activity{
 				status.setText("Lost connection");
 				break;
 			case SVar.BT_READ:
+				try {
+					drawList.addOneFingerData(new JSONObject((String)msg.obj));
+				} catch (JSONException e) {
+					Log.e(TAG, "JSON error", e);
+				}
+				/*
 				byte[] read = (byte[]) msg.obj;
 				String s= new String(read, 0, msg.arg1);
-				Log.d(TAG, s);
+				try {
+					drawList.addOneFingerData(new JSONObject(s));
+				} catch (JSONException e) {
+					Log.e(TAG, "JSON error", e);
+					e.printStackTrace();
+				}*/
+				//Log.d(TAG, s);
 				break;
 			}
 		}
