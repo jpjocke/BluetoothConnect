@@ -1,7 +1,10 @@
 package com.btconnect;
 
+import com.variables.SVar;
+
 import android.os.Bundle;
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.util.Log;
 import android.view.Menu;
@@ -9,12 +12,24 @@ import android.view.View;
 
 public class MainActivity extends Activity {
 	private static final String TAG = "BTconnect_MAIN";
-	private static final int REQUEST_DEVICE = 1;
+	
+    private BluetoothAdapter mBluetoothAdapter = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+	}
+	@Override
+	protected void onStart(){
+        super.onStart();
+        //Enable BT directly
+		if (!mBluetoothAdapter.isEnabled()) {
+            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableIntent, SVar.REQUEST_ENABLE_BT);
+        }
 	}
 
 	@Override
@@ -32,14 +47,22 @@ public class MainActivity extends Activity {
 		else if(v == findViewById(R.id.mainConnectBtn)){
 			Log.d(TAG, "connect");
 			Intent connect = new Intent(this, DiscoverBT.class);
-			startActivityForResult(connect, REQUEST_DEVICE);
+			startActivityForResult(connect, SVar.REQUEST_DEVICE);
 		}
 	}
 	
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if(requestCode == REQUEST_DEVICE){
+		if(requestCode == SVar.REQUEST_DEVICE){
 			if (resultCode == Activity.RESULT_OK) {
-                Log.d(TAG, "device found, should connect now");
+                Log.d(TAG, "device found, should connect now " + data.getExtras().getString(SVar.EXTRA_DEVICE_ADDRESS));
+            }
+		}
+		else if(requestCode == SVar.REQUEST_ENABLE_BT){
+			if (resultCode == Activity.RESULT_OK) {
+				Log.d(TAG, "BT enabled");
+            } else {
+                Log.d(TAG, "BT not enabled");
+                finish();
             }
 		}
 		
