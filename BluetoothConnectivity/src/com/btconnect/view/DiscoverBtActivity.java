@@ -1,6 +1,8 @@
-package com.btconnect;
+package com.btconnect.view;
 
-import com.variables.SVar;
+import com.btconnect.R;
+import com.btconnect.variables.SVar;
+
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -17,7 +19,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class DiscoverBT extends Activity{
+public class DiscoverBtActivity extends Activity{
 	private static final String TAG = "BTconnect_Discover";
 	private BluetoothAdapter mBtAdapter;
     private ArrayAdapter<String> mDevicesArrayAdapter;
@@ -98,18 +100,15 @@ public class DiscoverBT extends Activity{
         }
     };
 	
-	// The BroadcastReceiver that listens for discovered devices and
-    // changes the title when discovery is finished
+	// The BroadcastReceiver that listens for discovered devices and when discovery is finished
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            // When discovery finds a device
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 // Get the BluetoothDevice object from the Intent
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 mDevicesArrayAdapter.add(device.getName() + "\n" + device.getAddress());
-            // When discovery is finished, change the Activity title
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
     			findViewById(R.id.discProgress).setVisibility(View.GONE);
                 if(mDevicesArrayAdapter.getCount() == 0)

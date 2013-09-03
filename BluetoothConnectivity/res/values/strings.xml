@@ -7,5 +7,7 @@
     <string name="connect">Connect</string>
     <string name="scan">Scan</string>
     <string name="no_dev_found">No devices found</string>
+    <string name="await_con">Waiting for connection</string>
+    <string name="stop">Stop</string>
 
 </resources>

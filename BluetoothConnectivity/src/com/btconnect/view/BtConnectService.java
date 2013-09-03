@@ -1,15 +1,17 @@
-package com.btconnect;
+package com.btconnect.view;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import com.variables.SVar;
+import com.btconnect.variables.SVar;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 public class BtConnectService {
@@ -18,9 +20,11 @@ public class BtConnectService {
 	private AcceptThread mAcceptThread;
 	private ConnectThread mConnectThread;
 	private CommunicationThread mComThread;
+	private Handler mHandler;
 
-	public BtConnectService(){
+	public BtConnectService(Handler handler){
 		mAdapter = BluetoothAdapter.getDefaultAdapter();
+		mHandler = handler;
 	}
 
 	/**
@@ -74,6 +78,12 @@ public class BtConnectService {
 			mComThread.write(buffer);
 		}
 	}
+	
+	private void connectionLost() {
+        Message msg = mHandler.obtainMessage();
+        msg.what = SVar.DEVICE_DISCONNECTED;
+        mHandler.sendMessage(msg);
+    }
 
 	/*
 	 * Listens for incomming connections
@@ -194,6 +204,9 @@ public class BtConnectService {
             } catch (IOException e) {
                 Log.e(TAG, "temp sockets not created", e);
             }
+            Message m = mHandler.obtainMessage();
+            m.what = SVar.DEVICE_CONNECTED;
+            mHandler.sendMessage(m);
 
             mInStream = tmpIn;
             mOutStream = tmpOut;
@@ -203,21 +216,19 @@ public class BtConnectService {
             Log.i(TAG, "BEGIN mConnectedThread");
             byte[] buffer = new byte[1024];
             int bytes;
+        	//String a = "hej hoe";
+        	//write(a.getBytes());
 
             // Keep listening to the InputStream while connected
             while (true) {
-            	String a = "hej hoe";
-            	write(a.getBytes());
                 try {
                     bytes = mInStream.read(buffer);
-                    Log.i(TAG, new String(buffer));
-
-                    // Send the obtained bytes to the UI Activity
-                    /*mHandler.obtainMessage(BluetoothChat.MESSAGE_READ, bytes, -1, buffer)
-                            .sendToTarget();*/
+                    Log.i(TAG, new String(buffer, 0, bytes));
+                    Message msg = mHandler.obtainMessage(SVar.BT_READ, bytes, -1, buffer);
+                    mHandler.sendMessage(msg);
                 } catch (IOException e) {
                     Log.e(TAG, "disconnected", e);
-                    //connectionLost();
+                    connectionLost();
                     // Start the service over to restart listening mode
                     //BluetoothChatService.this.start();
                     break;

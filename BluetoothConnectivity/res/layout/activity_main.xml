@@ -12,11 +12,25 @@
         android:onClick="onClick"
         android:text="@string/start_server" />
 
+    <TextView
+        android:id="@+id/mainAwaitTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:text="@string/await_con" />
+
     <Button
         android:id="@+id/mainConnectBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="onClick"
         android:text="@string/connect" />
+
+    <Button
+        android:id="@+id/mainStopBtn"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/stop" />
 
 </LinearLayout>

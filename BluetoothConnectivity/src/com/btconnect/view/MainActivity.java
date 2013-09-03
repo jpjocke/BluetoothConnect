@@ -1,6 +1,7 @@
-package com.btconnect;
+package com.btconnect.view;
 
-import com.variables.SVar;
+import com.btconnect.R;
+import com.btconnect.variables.SVar;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -15,16 +16,14 @@ public class MainActivity extends Activity {
 	private static final String TAG = "BTconnect_MAIN";
 
 	private BluetoothAdapter mBluetoothAdapter = null;
-	private BtConnectService mBtConnect;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-		mBtConnect = new BtConnectService();
 	}
+	
 	@Override
 	protected void onStart(){
 		super.onStart();
@@ -35,30 +34,23 @@ public class MainActivity extends Activity {
 		}
 	}
 
-	@Override
+	/*@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		// Stop the Bluetooth chat services
-		if (mBtConnect != null) 
-			mBtConnect.stop();
-	}
-
+	}*/
 
 	public void onClick(View v){
 		if(v == findViewById(R.id.mainServerBtn)){
 			Log.d(TAG, "server");
-			mBtConnect.startListening();
+			Intent in = new Intent(this, DrawActivity.class);
+			in.putExtra(SVar.EXTRA_TYPE, SVar.SERVER);
+			startActivity(in);
 		}
 		else if(v == findViewById(R.id.mainConnectBtn)){
 			Log.d(TAG, "connect");
-			Intent connect = new Intent(this, DiscoverBT.class);
+			Intent connect = new Intent(this, DiscoverBtActivity.class);
 			startActivityForResult(connect, SVar.REQUEST_DEVICE);
 		}
 	}
@@ -66,8 +58,11 @@ public class MainActivity extends Activity {
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if(requestCode == SVar.REQUEST_DEVICE){
 			if (resultCode == Activity.RESULT_OK) {
-				Log.d(TAG, "device found, should connect now " + data.getExtras().getString(SVar.EXTRA_DEVICE_ADDRESS));
-				connectDevice(data);
+				Intent in = new Intent(this, DrawActivity.class);
+				in.putExtra(SVar.EXTRA_TYPE, SVar.CONNECT);
+				Log.d(TAG, data.getExtras().getString(SVar.EXTRA_DEVICE_ADDRESS));
+				in.putExtra(SVar.MAC, data.getExtras().getString(SVar.EXTRA_DEVICE_ADDRESS));
+				startActivity(in);
 			}
 		}
 		else if(requestCode == SVar.REQUEST_ENABLE_BT){
@@ -78,17 +73,5 @@ public class MainActivity extends Activity {
 				finish();
 			}
 		}
-
 	}
-	
-	private void connectDevice(Intent data) {
-        // Get the device MAC address
-        String address = data.getExtras()
-            .getString(SVar.EXTRA_DEVICE_ADDRESS);
-        // Get the BluetoothDevice object
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
-        // Attempt to connect to the device
-        mBtConnect.connectTo(device);
-    }
-
 }

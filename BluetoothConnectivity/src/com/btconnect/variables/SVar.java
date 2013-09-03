@@ -1,4 +1,4 @@
-package com.variables;
+package com.btconnect.variables;
 
 import java.util.UUID;
 
@@ -9,4 +9,12 @@ public class SVar {
     
 	public static final int REQUEST_DEVICE = 1;
 	public static final int REQUEST_ENABLE_BT = 10;
+	public static final int DEVICE_CONNECTED = 20;
+	public static final int DEVICE_DISCONNECTED = 21;
+	public static final int BT_READ = 22;
+
+	public static final String EXTRA_TYPE = "type";
+	public static final String SERVER = "server";
+	public static final String CONNECT = "connect";
+	public static final String MAC = "mac";
 }
