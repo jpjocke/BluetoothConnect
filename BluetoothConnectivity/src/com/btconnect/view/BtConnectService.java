@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import com.btconnect.model.NetworkInterface;
 import com.btconnect.variables.SVar;
 
 import android.bluetooth.BluetoothAdapter;
@@ -14,7 +15,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-public class BtConnectService {
+public class BtConnectService implements NetworkInterface{
 	private static final String TAG = "BTconnectService";
 	private final BluetoothAdapter mAdapter;
 	private AcceptThread mAcceptThread;
@@ -73,9 +74,16 @@ public class BtConnectService {
 		mComThread.start();
 	}
 	
-	public void writeToCom(byte[] buffer){
+	@Override
+	public void write(String JsonRepresentation) {
+		new WriteThread(JsonRepresentation).start();		
+	}
+	
+	private void writeToCom(byte[] buffer){
 		if(mComThread != null){
-			mComThread.write(buffer);
+			synchronized(this){
+				mComThread.write(buffer);
+			}
 		}
 	}
 	
@@ -84,6 +92,20 @@ public class BtConnectService {
         msg.what = SVar.DEVICE_DISCONNECTED;
         mHandler.sendMessage(msg);
     }
+	
+	/*
+	 * Thread that receives messages that should be written to the network
+	 */
+	private class WriteThread extends Thread{
+		private String write;
+		public WriteThread(String write){
+			this.write = write;
+		}
+		
+		public void run(){
+			writeToCom(write.getBytes());
+		}
+	}
 
 	/*
 	 * Listens for incomming connections
@@ -260,5 +282,7 @@ public class BtConnectService {
             }
         }
 	}
+
+
 
 }

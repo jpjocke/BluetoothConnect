@@ -48,6 +48,7 @@ public class DrawActivity extends Activity{
 			Log.d(TAG, extras.getString(SVar.MAC));
 			connectDevice(extras.getString(SVar.MAC));
 		}
+		((DrawPnl)findViewById(R.id.drawDrawPnl)).setNetworkInterface(mBtConnect);
 		//drawPnl = new DrawPnl(this); 
 		//findViewById(R.id.drawFrame).addContentView(drawPnl, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)); 
 	}
@@ -57,13 +58,6 @@ public class DrawActivity extends Activity{
 		super.onDestroy();
 		if (mBtConnect != null) 
 			mBtConnect.stop();
-	}
-
-	public void onClick(View v){
-		if(v == findViewById(R.id.drawSendBtn)){
-			String s = "sdfsf";
-			mBtConnect.writeToCom(s.getBytes());
-		}
 	}
 
 	private void connectDevice(String macAdress) {

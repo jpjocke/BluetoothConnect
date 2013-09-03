@@ -7,7 +7,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -27,6 +26,8 @@ public class DrawPnl extends SurfaceView implements SurfaceHolder.Callback{
 	private int cPointers = 0;
 	private Paint color[];
 	private static final long DRAW_TIME = 3000;
+	
+	private NetworkInterface network;
 
 	public DrawPnl(Context context, AttributeSet attributeSet) { 
 		super(context, attributeSet); 
@@ -63,7 +64,7 @@ public class DrawPnl extends SurfaceView implements SurfaceHolder.Callback{
 				} 
 				case MotionEvent.ACTION_MOVE: { 
 					for(int i = 0; i < cPointers; i++)
-						cDrawing[e.getPointerId(i)].addPoint((int)e.getX(e.getPointerId(i)), (int)e.getY(e.getPointerId(i)));
+						cDrawing[e.getPointerId(i)].addPoint(e.getX(e.getPointerId(i)), e.getY(e.getPointerId(i)));
 					break; 
 				} 
 				case MotionEvent.ACTION_UP: { 
@@ -86,11 +87,17 @@ public class DrawPnl extends SurfaceView implements SurfaceHolder.Callback{
 			return true; 
 		} 
 	}
+	
+	public void setNetworkInterface(NetworkInterface network){
+		this.network = network;
+	}
 
 	private void emptyCurrentList(MotionEvent e){
 		for(int i = 0; i < cDrawing.length; i++){
 			if(cDrawing[i] != null){
 				//Log.d(TAG, "added with id: " + cDrawing[i].getmId() + " to drawList");
+				//Log.i(TAG, cDrawing[i].toJSON());
+				network.write(cDrawing[i].toJSON());
 				drawList.add(cDrawing[i]);
 				cDrawing[i] = null;
 			}
@@ -121,8 +128,8 @@ public class DrawPnl extends SurfaceView implements SurfaceHolder.Callback{
 				a1 *= 255;
 				a1 = 255 - a1;
 				for(int j = 0; j < drawList.get(i).getPointData().size() - 1; j++){
-					Point start = drawList.get(i).getPointData().get(j);
-					Point end = drawList.get(i).getPointData().get(j + 1);
+					PointFloat start = drawList.get(i).getPointData().get(j);
+					PointFloat end = drawList.get(i).getPointData().get(j + 1);
 					color[drawList.get(i).getColor()].setAlpha((int)a1);
 					canvas.drawLine(start.x, start.y, end.x, end.y, color[drawList.get(i).getColor()]);
 				}

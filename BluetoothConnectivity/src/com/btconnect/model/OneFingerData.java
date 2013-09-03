@@ -1,22 +1,58 @@
 package com.btconnect.model;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import jocke.helper.JSONhelper;
 import android.graphics.Point;
 
 public class OneFingerData {
 	private PointFactory pf;
-	private ArrayList<Point> pointData;
+	private ArrayList<PointFloat> pointData;
 	private int mId;
 	private int color;
 	private long createTime;
 	
 	public OneFingerData(PointFactory pf){
 		this.pf = pf;
-		pointData = new ArrayList<Point>();
+		pointData = new ArrayList<PointFloat>();
 		setmId(-1);
 		color = 0;
 		createTime = System.currentTimeMillis();
+	}
+	
+	public String toJSON(){
+		StringBuilder sb = new StringBuilder();
+		sb.append("{");
+		sb.append(JSONhelper.pairToJson("mId", mId) + ",");
+		sb.append(JSONhelper.pairToJson("color", color) + ",");
+		sb.append(JSONhelper.pairToJson("createTime", createTime) + ",");
+		sb.append(JSONhelper.stringToName("points"));
+		sb.append("{");
+		for(int i = 0; i < pointData.size(); i++){
+			sb.append(JSONhelper.stringToName(String.valueOf(i)));
+			sb.append(pointData.get(i).toJSON());
+			if(i != pointData.size() - 1)
+				sb.append(",");
+		}
+		sb.append("}}");
+		
+		return sb.toString();
+	}
+	
+	public void setByJSON(JSONObject jo) throws JSONException{
+		mId = jo.getInt("mId");
+		color = jo.getInt("color");
+		createTime = jo.getLong("createTime");
+		JSONObject points = jo.getJSONObject("points"); 
+        Iterator<?> keys = points.keys(); 
+        while(keys.hasNext()){ 
+            String key = (String)keys.next(); 
+            addPoint(points.getJSONObject(key).getInt("x"), points.getJSONObject(key).getInt("y"));
+        } 
 	}
 
 	public int getmId() {
@@ -27,13 +63,13 @@ public class OneFingerData {
 		this.mId = mId;
 	}
 
-	public void addPoint(int x, int y){
-		Point p = pf.takePoint();
+	public void addPoint(float x, float y){
+		PointFloat p = pf.takePoint();
 		p.set(x, y);
 		pointData.add(p);
 	}
 	
-	public ArrayList<Point> getPointData() {
+	public ArrayList<PointFloat> getPointData() {
 		return pointData;
 	}
 	
