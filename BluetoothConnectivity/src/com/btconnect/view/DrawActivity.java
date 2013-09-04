@@ -11,10 +11,12 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -27,6 +29,8 @@ public class DrawActivity extends Activity{
 	private BtConnectService mBtConnect;
 	private TextView status;
 	private DrawList drawList;
+	private DrawPnl drawPnl;
+	//private int width, height;
 	//private DrawPnl drawPnl;
 
 	@Override
@@ -41,6 +45,12 @@ public class DrawActivity extends Activity{
 
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		mBtConnect = new BtConnectService(mHandler);
+		
+		Display display = getWindowManager().getDefaultDisplay();
+		Point size = new Point();
+		display.getSize(size);
+		SVar.screenWidth = size.x;
+		SVar.screenHeight = size.y;
 
 		status = (TextView)findViewById(R.id.drawStatus);
 		Bundle extras = getIntent().getExtras(); 
@@ -54,10 +64,9 @@ public class DrawActivity extends Activity{
 			connectDevice(extras.getString(SVar.MAC));
 		}
 		drawList = new DrawList();
-		((DrawPnl)findViewById(R.id.drawDrawPnl)).setNetworkInterface(mBtConnect);
-		((DrawPnl)findViewById(R.id.drawDrawPnl)).setDrawList(drawList);
-		//drawPnl = new DrawPnl(this); 
-		//findViewById(R.id.drawFrame).addContentView(drawPnl, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)); 
+		drawPnl = ((DrawPnl)findViewById(R.id.drawDrawPnl));
+		drawPnl.setNetworkInterface(mBtConnect);
+		drawPnl.setDrawList(drawList);
 	}
 
 	@Override
@@ -65,6 +74,8 @@ public class DrawActivity extends Activity{
 		super.onDestroy();
 		if (mBtConnect != null) 
 			mBtConnect.stop();
+		if(drawPnl != null)
+			drawPnl.stop();
 	}
 
 	private void connectDevice(String macAdress) {
@@ -84,20 +95,10 @@ public class DrawActivity extends Activity{
 				break;
 			case SVar.BT_READ:
 				try {
-					drawList.addOneFingerData(new JSONObject((String)msg.obj));
+					drawList.addOneFingerData(new JSONObject((String)msg.obj), SVar.screenWidth, SVar.screenHeight);
 				} catch (JSONException e) {
 					Log.e(TAG, "JSON error", e);
 				}
-				/*
-				byte[] read = (byte[]) msg.obj;
-				String s= new String(read, 0, msg.arg1);
-				try {
-					drawList.addOneFingerData(new JSONObject(s));
-				} catch (JSONException e) {
-					Log.e(TAG, "JSON error", e);
-					e.printStackTrace();
-				}*/
-				//Log.d(TAG, s);
 				break;
 			}
 		}

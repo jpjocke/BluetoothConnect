@@ -26,5 +26,19 @@ public class PointFloat {
 				"," + JSONhelper.pairToJson("y", y) + 
 				"}";
 	}
+	
+	/**
+	 * Turns this object to a JSONObject string
+	 * normalizes it to this screensize
+	 * @param width
+	 * @param height
+	 * @return
+	 */
+	public String toJSONNormalized(int width, int height){
+		return "{" + 
+				JSONhelper.pairToJson("x", (x / (float)width)) + 
+				"," + JSONhelper.pairToJson("y", (y / (float)height)) + 
+				"}";
+	}
 
 }

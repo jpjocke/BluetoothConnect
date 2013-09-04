@@ -239,8 +239,6 @@ public class BtConnectService implements NetworkInterface{
             Log.i(TAG, "BEGIN mConnectedThread");
             byte[] buffer = new byte[1024];
             int bytes;
-        	//String a = "hej hoe";
-        	//write(a.getBytes());
 
             // Keep listening to the InputStream while connected
             while (true) {
@@ -254,11 +252,7 @@ public class BtConnectService implements NetworkInterface{
 
                     Message msg = mHandler.obtainMessage(SVar.BT_READ, -1, -1, sb.toString());
                     mHandler.sendMessage(msg);
-                	/*
-                    bytes = mInStream.read(buffer);
-                    Log.i(TAG, new String(buffer, 0, bytes));
-                    Message msg = mHandler.obtainMessage(SVar.BT_READ, bytes, -1, buffer);
-                    mHandler.sendMessage(msg);*/
+                    //Log.d(TAG, sb.toString());
                 } catch (IOException e) {
                     Log.e(TAG, "disconnected", e);
                     connectionLost();

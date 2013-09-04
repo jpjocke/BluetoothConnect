@@ -17,4 +17,7 @@ public class SVar {
 	public static final String SERVER = "server";
 	public static final String CONNECT = "connect";
 	public static final String MAC = "mac";
+	
+	public static int screenWidth = 200;
+	public static int screenHeight = 600;
 }

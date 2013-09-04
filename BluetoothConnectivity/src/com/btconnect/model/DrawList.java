@@ -22,9 +22,9 @@ public class DrawList {
 		drawList.add(ofd);
 	}
 	
-	public void addOneFingerData(JSONObject jo) throws JSONException{
+	public void addOneFingerData(JSONObject jo, int width, int height) throws JSONException{
 		OneFingerData ofd = ofdFactory.takeOneFingerData(0);
-		ofd.setByJSON(jo);
+		ofd.setByJSONNormalized(jo, width, height);
 		addOneFingerData(ofd);
 	}
 	

@@ -3,6 +3,7 @@
     package="com.btconnect"
     android:versionCode="1"
     android:versionName="1.0" >
+
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
 
@@ -24,9 +25,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.btconnect.view.DiscoverBtActivity"/>
-        <activity android:name="com.btconnect.view.DrawActivity"/>
-            
+        <activity android:name="com.btconnect.view.DiscoverBtActivity" />
+        <activity
+            android:name="com.btconnect.view.DrawActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

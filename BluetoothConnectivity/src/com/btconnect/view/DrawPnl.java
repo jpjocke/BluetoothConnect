@@ -3,12 +3,16 @@ package com.btconnect.view;
 import java.util.ArrayList;
 
 import com.btconnect.model.*;
+import com.btconnect.variables.SVar;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -18,15 +22,13 @@ public class DrawPnl extends SurfaceView implements SurfaceHolder.Callback{
 	private static final String TAG = "Multi";
 	private DrawThread drawThread;
 
-	//private OneFingerDataFactory ofdFactory;
 	private OneFingerData[] cDrawing;
 	private DrawList drawList;
-	//private ArrayList<OneFingerData> drawList;
 
 	private static final int MAX_POINTERS = 10;
 	private int cPointers = 0;
 	private Paint color[];
-	private static final long DRAW_TIME = 3000;
+	private static final long DRAW_TIME = 10000;
 	
 	private NetworkInterface network;
 
@@ -42,11 +44,9 @@ public class DrawPnl extends SurfaceView implements SurfaceHolder.Callback{
 			color[i] = new Paint();
 			color[i].setColor(Color.rgb(r, g, b));
 		}
+		
 
-		//PointFactory pf = new PointFactory();
-		//ofdFactory = new OneFingerDataFactory(pf);
-		//drawList = new DrawList(ofdFactory);
-		//drawList = new ArrayList<OneFingerData>();
+		
 		cDrawing = new OneFingerData[MAX_POINTERS];
 		drawThread = new DrawThread(getHolder());
 		drawThread.setRunning(true); 
@@ -103,7 +103,7 @@ public class DrawPnl extends SurfaceView implements SurfaceHolder.Callback{
 			if(cDrawing[i] != null){
 				//Log.d(TAG, "added with id: " + cDrawing[i].getmId() + " to drawList");
 				//Log.i(TAG, cDrawing[i].toJSON());
-				network.write(cDrawing[i].toJSON());
+				network.write(cDrawing[i].toJSONNormalized(SVar.screenWidth, SVar.screenHeight));
 				//drawList.add(cDrawing[i]);
 				cDrawing[i] = null;
 			}
@@ -119,8 +119,8 @@ public class DrawPnl extends SurfaceView implements SurfaceHolder.Callback{
 
 	//@Override
 	public void doDraw(Canvas canvas) { 
-		canvas.drawColor(Color.WHITE);
 		try{
+			canvas.drawColor(Color.WHITE);
 			for(int i = drawList.getDrawList().size() - 1; i >= 0; i--){
 				if(drawList.getDrawList().get(i).getCreateTime() + DRAW_TIME < System.currentTimeMillis()){
 					//Log.d(TAG, "removed with id:" + drawList.get(i).getmId() + " from drawList");
@@ -143,6 +143,9 @@ public class DrawPnl extends SurfaceView implements SurfaceHolder.Callback{
 		}
 		catch(IndexOutOfBoundsException e){
 			e.printStackTrace();
+		}
+		catch(NullPointerException ignore){
+			
 		}
 
 	}
@@ -177,6 +180,10 @@ public class DrawPnl extends SurfaceView implements SurfaceHolder.Callback{
 			} 
 		} 
 
+	}
+	
+	public void stop(){
+		drawThread.setRunning(false);
 	}
 
 	/************************************************************************************** 
